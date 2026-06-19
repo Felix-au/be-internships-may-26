@@ -55,6 +55,15 @@ function isTransient(err) {
 /**
  * Synchronous sleep using a spin-wait loop.
  * better-sqlite3 is fully synchronous so we cannot use async timers.
+ *
+ * Known limitation: this blocks the event loop for the duration of the
+ * sleep (50–500 ms per retry attempt), stalling all other in-flight
+ * requests. Acceptable for a single-instance SQLite setup, but in
+ * production this should be replaced with either:
+ *   - A worker-thread pool (e.g. piscina + better-sqlite3) so retries
+ *     don't block the main thread.
+ *   - An async database driver (PostgreSQL via pg/pg-pool) that supports
+ *     non-blocking retry with real timers.
  */
 function syncSleep(ms) {
   const end = Date.now() + ms;
