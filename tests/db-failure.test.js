@@ -2,9 +2,9 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import { setTimeout as wait } from 'node:timers/promises';
-import http from 'node:http';
 import path from 'node:path';
 import fs from 'node:fs';
+import { postJson, getJson } from './helpers.js';
 
 const TEST_PORT = 9093;
 const BASE = `http://localhost:${TEST_PORT}`;
@@ -152,48 +152,4 @@ test('db-failure: GET signals returns 503 when DB always fails', async () => {
   }
 });
 
-// ── Helpers ─────────────────────────────────────────────────────────────
-async function postJson(url, { headers, body }) {
-  return new Promise((resolve, reject) => {
-    const data = JSON.stringify(body);
-    const req = http.request(
-      url,
-      {
-        method: 'POST',
-        headers: { 'content-type': 'application/json', ...headers },
-      },
-      (res) => {
-        let chunks = '';
-        res.on('data', (d) => (chunks += d));
-        res.on('end', () => {
-          resolve({
-            status: res.statusCode,
-            headers: res.headers,
-            body: JSON.parse(chunks || '{}'),
-          });
-        });
-      }
-    );
-    req.on('error', reject);
-    req.write(data);
-    req.end();
-  });
-}
 
-async function getJson(url, { headers }) {
-  return new Promise((resolve, reject) => {
-    const req = http.request(url, { method: 'GET', headers }, (res) => {
-      let chunks = '';
-      res.on('data', (d) => (chunks += d));
-      res.on('end', () => {
-        resolve({
-          status: res.statusCode,
-          headers: res.headers,
-          body: JSON.parse(chunks || '{}'),
-        });
-      });
-    });
-    req.on('error', reject);
-    req.end();
-  });
-}
