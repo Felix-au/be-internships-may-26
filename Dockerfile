@@ -1,15 +1,15 @@
 # ── Stage 1: Install dependencies ──────────────────────────────────────
 FROM node:20-alpine AS deps
 
+# better-sqlite3 needs native compilation tools
+RUN apk add --no-cache python3 make g++
+
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci --omit=dev
 
-# ── Stage 2: Production image ─────────────────────────────────────────
+# ── Stage 2: Production image (no build tools) ───────────────────────
 FROM node:20-alpine AS runner
-
-# better-sqlite3 needs these native libs
-RUN apk add --no-cache python3 make g++
 
 WORKDIR /app
 
