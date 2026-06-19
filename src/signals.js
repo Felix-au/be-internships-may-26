@@ -60,6 +60,10 @@ export async function postSignal(req, reply) {
  * GET /v1/signals?userId=...&limit=...
  *
  * Lists signals for a user, newest first.
+ *
+ * Note: Rate limiting is intentionally applied only on POST (write path)
+ * per the assignment spec. In production, reads should also be rate-limited
+ * to prevent abuse — the same sliding-window approach applies.
  */
 export async function getSignals(req, reply) {
   const { userId, limit = 20 } = req.query || {};
