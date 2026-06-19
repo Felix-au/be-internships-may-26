@@ -57,6 +57,9 @@ if (entryFile && (entryFile.endsWith('server.js') || entryFile.endsWith('server'
 
 // ---------------------------------------------------------------------------
 // Graceful shutdown
+// Note: This handles the module-level `app` instance used when server.js is
+// the entry point. Instances created via buildApp() (e.g. in tests) are
+// managed by their own lifecycle and are not affected by these handlers.
 // ---------------------------------------------------------------------------
 function gracefulShutdown(signal) {
   app.log.info({ signal }, 'Received shutdown signal, closing server...');
