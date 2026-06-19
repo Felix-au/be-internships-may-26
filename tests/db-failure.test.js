@@ -4,7 +4,7 @@ import { spawn } from 'node:child_process';
 import { setTimeout as wait } from 'node:timers/promises';
 import path from 'node:path';
 import fs from 'node:fs';
-import { postJson, getJson } from './helpers.js';
+import { postJson, getJson, waitForServer } from './helpers.js';
 
 const TEST_PORT = 9093;
 const BASE = `http://localhost:${TEST_PORT}`;
@@ -34,7 +34,7 @@ function spawnServer(extraEnv = {}) {
 test('db-failure: retry succeeds with 30% fail rate', async () => {
   cleanDb();
   const proc = spawnServer({ DB_FAIL_RATE: '0.3' });
-  await wait(500);
+  await waitForServer(BASE);
 
   try {
     // With 30% fail rate and 3 retries, most requests should succeed
@@ -61,7 +61,7 @@ test('db-failure: retry succeeds with 30% fail rate', async () => {
 test('db-failure: returns 503 when DB always fails', async () => {
   cleanDb();
   const proc = spawnServer({ DB_FAIL_RATE: '1.0' });
-  await wait(500);
+  await waitForServer(BASE);
 
   try {
     const { status, body } = await postJson(`${BASE}/v1/signals`, {
@@ -82,7 +82,7 @@ test('db-failure: returns 503 when DB always fails', async () => {
 test('db-failure: 503 includes Retry-After header', async () => {
   cleanDb();
   const proc = spawnServer({ DB_FAIL_RATE: '1.0' });
-  await wait(500);
+  await waitForServer(BASE);
 
   try {
     const { status, headers } = await postJson(`${BASE}/v1/signals`, {
@@ -103,7 +103,7 @@ test('db-failure: 503 includes Retry-After header', async () => {
 test('db-failure: no duplicates after retry with idempotency key', async () => {
   cleanDb();
   const proc = spawnServer({ DB_FAIL_RATE: '0.3' });
-  await wait(500);
+  await waitForServer(BASE);
 
   try {
     const idem = 'retry-idem-key';
@@ -135,7 +135,7 @@ test('db-failure: no duplicates after retry with idempotency key', async () => {
 test('db-failure: GET signals returns 503 when DB always fails', async () => {
   cleanDb();
   const proc = spawnServer({ DB_FAIL_RATE: '1.0' });
-  await wait(500);
+  await waitForServer(BASE);
 
   try {
     const { status, body } = await getJson(

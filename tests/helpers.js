@@ -1,4 +1,23 @@
 import http from 'node:http';
+import { setTimeout as wait } from 'node:timers/promises';
+
+/**
+ * Poll the server's /healthz endpoint until it responds 200,
+ * or throw after `timeoutMs` milliseconds.
+ */
+export async function waitForServer(base, timeoutMs = 5000) {
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    try {
+      const { status } = await getJson(`${base}/healthz`, { headers: {} });
+      if (status === 200) return;
+    } catch {
+      // server not ready yet
+    }
+    await wait(100);
+  }
+  throw new Error(`Server at ${base} did not start within ${timeoutMs}ms`);
+}
 
 /**
  * POST JSON and return { status, headers, body }.

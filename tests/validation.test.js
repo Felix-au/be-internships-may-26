@@ -4,7 +4,7 @@ import { spawn } from 'node:child_process';
 import { setTimeout as wait } from 'node:timers/promises';
 import path from 'node:path';
 import fs from 'node:fs';
-import { postJson, getJson } from './helpers.js';
+import { postJson, getJson, waitForServer } from './helpers.js';
 
 const TEST_PORT = 9094;
 const BASE = `http://localhost:${TEST_PORT}`;
@@ -33,7 +33,7 @@ function spawnServer() {
 test('validation: GET /healthz returns 200 ok', async () => {
   cleanDb();
   const proc = spawnServer();
-  await wait(500);
+  await waitForServer(BASE);
 
   try {
     const { status, body } = await getJson(`${BASE}/healthz`, { headers: {} });
@@ -50,7 +50,7 @@ test('validation: GET /healthz returns 200 ok', async () => {
 test('validation: healthz does not require API key', async () => {
   cleanDb();
   const proc = spawnServer();
-  await wait(500);
+  await waitForServer(BASE);
 
   try {
     const { status } = await getJson(`${BASE}/healthz`, { headers: {} });
@@ -66,7 +66,7 @@ test('validation: healthz does not require API key', async () => {
 test('validation: missing API key returns 401', async () => {
   cleanDb();
   const proc = spawnServer();
-  await wait(500);
+  await waitForServer(BASE);
 
   try {
     const { status, body } = await postJson(`${BASE}/v1/signals`, {
@@ -86,7 +86,7 @@ test('validation: missing API key returns 401', async () => {
 test('validation: wrong API key returns 401', async () => {
   cleanDb();
   const proc = spawnServer();
-  await wait(500);
+  await waitForServer(BASE);
 
   try {
     const { status, body } = await postJson(`${BASE}/v1/signals`, {
@@ -106,7 +106,7 @@ test('validation: wrong API key returns 401', async () => {
 test('validation: missing userId returns 400', async () => {
   cleanDb();
   const proc = spawnServer();
-  await wait(500);
+  await waitForServer(BASE);
 
   try {
     const { status, body } = await postJson(`${BASE}/v1/signals`, {
@@ -125,7 +125,7 @@ test('validation: missing userId returns 400', async () => {
 test('validation: missing type returns 400', async () => {
   cleanDb();
   const proc = spawnServer();
-  await wait(500);
+  await waitForServer(BASE);
 
   try {
     const { status, body } = await postJson(`${BASE}/v1/signals`, {
@@ -144,7 +144,7 @@ test('validation: missing type returns 400', async () => {
 test('validation: missing payload returns 400', async () => {
   cleanDb();
   const proc = spawnServer();
-  await wait(500);
+  await waitForServer(BASE);
 
   try {
     const { status, body } = await postJson(`${BASE}/v1/signals`, {
@@ -164,7 +164,7 @@ test('validation: missing payload returns 400', async () => {
 test('validation: GET /v1/signals without userId returns 400', async () => {
   cleanDb();
   const proc = spawnServer();
-  await wait(500);
+  await waitForServer(BASE);
 
   try {
     const { status, body } = await getJson(`${BASE}/v1/signals`, {

@@ -4,7 +4,7 @@ import { spawn } from 'node:child_process';
 import { setTimeout as wait } from 'node:timers/promises';
 import path from 'node:path';
 import fs from 'node:fs';
-import { postJson, getJson } from './helpers.js';
+import { postJson, getJson, waitForServer } from './helpers.js';
 
 const TEST_PORT = 9095;
 const BASE = `http://localhost:${TEST_PORT}`;
@@ -48,7 +48,7 @@ async function createSignals(userId, count) {
 test('signals-list: returns all signals for a user', async () => {
   cleanDb();
   const proc = spawnServer();
-  await wait(500);
+  await waitForServer(BASE);
 
   try {
     await createSignals('u-list', 3);
@@ -74,7 +74,7 @@ test('signals-list: returns all signals for a user', async () => {
 test('signals-list: limit parameter restricts results', async () => {
   cleanDb();
   const proc = spawnServer();
-  await wait(500);
+  await waitForServer(BASE);
 
   try {
     await createSignals('u-limit', 5);
@@ -97,7 +97,7 @@ test('signals-list: limit parameter restricts results', async () => {
 test('signals-list: limit is capped at 100', async () => {
   cleanDb();
   const proc = spawnServer();
-  await wait(500);
+  await waitForServer(BASE);
 
   try {
     await createSignals('u-cap', 3);
@@ -122,7 +122,7 @@ test('signals-list: limit is capped at 100', async () => {
 test('signals-list: results are ordered newest-first', async () => {
   cleanDb();
   const proc = spawnServer();
-  await wait(500);
+  await waitForServer(BASE);
 
   try {
     await createSignals('u-order', 3);
@@ -151,7 +151,7 @@ test('signals-list: results are ordered newest-first', async () => {
 test('signals-list: non-existent user returns empty items', async () => {
   cleanDb();
   const proc = spawnServer();
-  await wait(500);
+  await waitForServer(BASE);
 
   try {
     const { status, body } = await getJson(
@@ -172,7 +172,7 @@ test('signals-list: non-existent user returns empty items', async () => {
 test('signals-list: user isolation — no data leakage', async () => {
   cleanDb();
   const proc = spawnServer();
-  await wait(500);
+  await waitForServer(BASE);
 
   try {
     await createSignals('user-x', 3);

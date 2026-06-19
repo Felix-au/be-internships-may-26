@@ -4,7 +4,7 @@ import { spawn } from 'node:child_process';
 import { setTimeout as wait } from 'node:timers/promises';
 import path from 'node:path';
 import fs from 'node:fs';
-import { postJson, getJson } from './helpers.js';
+import { postJson, getJson, waitForServer } from './helpers.js';
 
 const TEST_PORT = 9091;
 const BASE = `http://localhost:${TEST_PORT}`;
@@ -34,7 +34,7 @@ function spawnServer(extraEnv = {}) {
 test('idempotency: same key returns same resource', async () => {
   cleanDb();
   const proc = spawnServer();
-  await wait(500);
+  await waitForServer(BASE);
 
   try {
     const a = await postJson(`${BASE}/v1/signals`, {
@@ -59,7 +59,7 @@ test('idempotency: same key returns same resource', async () => {
 test('idempotency: concurrent requests with same key — only 1 row created', async () => {
   cleanDb();
   const proc = spawnServer();
-  await wait(500);
+  await waitForServer(BASE);
 
   try {
     const idem = 'concurrent-key-1';
@@ -98,7 +98,7 @@ test('idempotency: concurrent requests with same key — only 1 row created', as
 test('idempotency: different keys create different resources', async () => {
   cleanDb();
   const proc = spawnServer();
-  await wait(500);
+  await waitForServer(BASE);
 
   try {
     const a = await postJson(`${BASE}/v1/signals`, {
@@ -122,7 +122,7 @@ test('idempotency: different keys create different resources', async () => {
 test('idempotency: no key creates separate resources', async () => {
   cleanDb();
   const proc = spawnServer();
-  await wait(500);
+  await waitForServer(BASE);
 
   try {
     const a = await postJson(`${BASE}/v1/signals`, {
@@ -146,7 +146,7 @@ test('idempotency: no key creates separate resources', async () => {
 test('idempotency: first request 201, duplicate 200', async () => {
   cleanDb();
   const proc = spawnServer();
-  await wait(500);
+  await waitForServer(BASE);
 
   try {
     const a = await postJson(`${BASE}/v1/signals`, {

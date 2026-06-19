@@ -4,7 +4,7 @@ import { spawn } from 'node:child_process';
 import { setTimeout as wait } from 'node:timers/promises';
 import path from 'node:path';
 import fs from 'node:fs';
-import { postJson } from './helpers.js';
+import { postJson, waitForServer } from './helpers.js';
 
 const TEST_PORT = 9092;
 const BASE = `http://localhost:${TEST_PORT}`;
@@ -35,7 +35,7 @@ function spawnServer(extraEnv = {}) {
 test('rate limit: allow 5 per minute, 6th is 429', async () => {
   cleanDb();
   const proc = spawnServer();
-  await wait(500);
+  await waitForServer(BASE);
 
   try {
     const statuses = [];
@@ -65,7 +65,7 @@ test('rate limit: allow 5 per minute, 6th is 429', async () => {
 test('rate limit: concurrent burst — exactly 5 succeed out of 10', async () => {
   cleanDb();
   const proc = spawnServer();
-  await wait(500);
+  await waitForServer(BASE);
 
   try {
     const promises = Array.from({ length: 10 }, (_, i) =>
@@ -91,7 +91,7 @@ test('rate limit: concurrent burst — exactly 5 succeed out of 10', async () =>
 test('rate limit: different users have independent limits', async () => {
   cleanDb();
   const proc = spawnServer();
-  await wait(500);
+  await waitForServer(BASE);
 
   try {
     // User A: 5 requests
@@ -120,7 +120,7 @@ test('rate limit: different users have independent limits', async () => {
 test('rate limit: response includes rate-limit headers', async () => {
   cleanDb();
   const proc = spawnServer();
-  await wait(500);
+  await waitForServer(BASE);
 
   try {
     const { headers } = await postJson(`${BASE}/v1/signals`, {
@@ -144,7 +144,7 @@ test('rate limit: response includes rate-limit headers', async () => {
 test('rate limit: 429 response includes Retry-After header', async () => {
   cleanDb();
   const proc = spawnServer();
-  await wait(500);
+  await waitForServer(BASE);
 
   try {
     // Exhaust limit
