@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: signals-challenge
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: node src/server.js
+    envVars:
+      - key: API_KEY
+        generateValue: true
+      - key: PORT
+        value: 8080
+      - key: DATABASE_URL
+        value: ./data/signals.db
+      - key: RATE_LIMIT_PER_MIN
+        value: 5
+      - key: DB_FAIL_RATE
+        value: 0
+      - key: NODE_ENV
+        value: production
+    healthCheckPath: /healthz
