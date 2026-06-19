@@ -156,7 +156,9 @@ docker compose up
 
 ## Deployment
 
-See [Render Deploy Guide](../render-deploy-guide.md) for deployment to Render.
+**Live**: [https://signals-challenge.onrender.com](https://signals-challenge.onrender.com)
+
+See [DEPLOY.md](./DEPLOY.md) for Render deployment instructions (free and paid tier).
 
 ---
 
